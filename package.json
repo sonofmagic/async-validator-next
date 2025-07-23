@@ -45,7 +45,7 @@
     "@commitlint/prompt-cli": "^19.8.1",
     "@commitlint/types": "^19.8.1",
     "@icebreakers/eslint-config": "^1.2.5",
-    "@icebreakers/monorepo": "workspace:*",
+    "@icebreakers/monorepo": "latest",
     "@icebreakers/stylelint-config": "^1.1.1",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^24.1.0",
