@@ -1,0 +1,15 @@
+{
+  "name": "async-validator",
+  "license": "MIT",
+  "keywords": [
+    "validator",
+    "validate",
+    "async"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "test": "vitest run",
+    "test:dev": "vitest"
+  },
+  "devDependencies": {}
+}
