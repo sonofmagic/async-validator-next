@@ -1,15 +1,27 @@
 {
-  "name": "async-validator",
+  "name": "async-validator-next",
+  "type": "module",
+  "private": true,
   "license": "MIT",
   "keywords": [
     "validator",
     "validate",
     "async"
   ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
   "scripts": {
-    "build": "tsdown",
+    "build": "unbuild",
     "test": "vitest run",
     "test:dev": "vitest"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "publishConfig": {
+
+  }
 }

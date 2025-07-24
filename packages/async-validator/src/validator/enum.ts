@@ -1,8 +1,8 @@
-import { ExecuteValidator } from '../interface';
-import rules from '../rule';
-import { isEmptyValue } from '../util';
+import type { ExecuteValidator } from '../interface'
+import rules from '../rule'
+import { isEmptyValue } from '../util'
 
-const ENUM = 'enum' as const;
+const ENUM = 'enum' as const
 
 const enumerable: ExecuteValidator = (
   rule,
@@ -11,19 +11,19 @@ const enumerable: ExecuteValidator = (
   source,
   options,
 ) => {
-  const errors: string[] = [];
-  const validate =
-    rule.required || (!rule.required && source.hasOwnProperty(rule.field));
+  const errors: string[] = []
+  const validate
+    = rule.required || (!rule.required && Object.prototype.hasOwnProperty.call(source, rule.field))
   if (validate) {
     if (isEmptyValue(value) && !rule.required) {
-      return callback();
+      return callback()
     }
-    rules.required(rule, value, source, errors, options);
+    rules.required(rule, value, source, errors, options)
     if (value !== undefined) {
-      rules[ENUM](rule, value, source, errors, options);
+      rules[ENUM](rule, value, source, errors, options)
     }
   }
-  callback(errors);
-};
+  callback(errors)
+}
 
-export default enumerable;
+export default enumerable

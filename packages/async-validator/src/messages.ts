@@ -1,4 +1,4 @@
-import { InternalValidateMessages } from './interface';
+import type { InternalValidateMessages } from './interface'
 
 export function newMessages(): InternalValidateMessages {
   return {
@@ -48,11 +48,11 @@ export function newMessages(): InternalValidateMessages {
       mismatch: '%s value %s does not match pattern %s',
     },
     clone() {
-      const cloned = JSON.parse(JSON.stringify(this));
-      cloned.clone = this.clone;
-      return cloned;
+      const cloned = JSON.parse(JSON.stringify(this))
+      cloned.clone = this.clone
+      return cloned
     },
-  };
+  }
 }
 
-export const messages = newMessages();
+export const messages = newMessages()

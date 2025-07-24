@@ -1,3 +1,5 @@
+/* eslint-disable node/prefer-global/process */
+/* eslint-disable import/no-mutable-exports */
 /* eslint no-console:0 */
 
 import type {
@@ -9,13 +11,10 @@ import type {
   Value,
   Values,
 } from './interface'
-import {
-  RuleType,
-} from './interface'
 
 const formatRegExp = /%[sdj%]/g
 
-declare let ASYNC_VALIDATOR_NO_WARNING
+declare let ASYNC_VALIDATOR_NO_WARNING: any
 
 export let warning: (type: string, errors: SyncErrorType[]) => void = () => {}
 
@@ -42,11 +41,13 @@ if (
 
 export function convertFieldsError(
   errors: ValidateError[],
-): Record<string, ValidateError[]> {
-  if (!errors || !errors.length) { return null }
-  const fields = {}
+): Record<string, ValidateError[]> | null {
+  if (!errors || !errors.length) {
+    return null
+  }
+  const fields: Record<string, ValidateError[]> = {}
   errors.forEach((error) => {
-    const field = error.field
+    const field = error.field!
     fields[field] = fields[field] || []
     fields[field].push(error)
   })
@@ -60,10 +61,10 @@ export function format(
   let i = 0
   const len = args.length
   if (typeof template === 'function') {
-    return template.apply(null, args)
+    return template(...args)
   }
   if (typeof template === 'string') {
-    let str = template.replace(formatRegExp, (x) => {
+    const str = template.replace(formatRegExp, (x) => {
       if (x === '%%') {
         return '%'
       }
@@ -91,7 +92,7 @@ export function format(
   return template
 }
 
-function isNativeStringType(type: string) {
+function isNativeStringType(type?: string) {
   return (
     type === 'string'
     || type === 'url'
@@ -206,7 +207,7 @@ export function asyncMap(
       const next = (errors: ValidateError[]) => {
         callback(errors)
         return errors.length
-          ? reject(new AsyncValidationError(errors, convertFieldsError(errors)))
+          ? reject(new AsyncValidationError(errors, convertFieldsError(errors)!))
           : resolve(source)
       }
       const flattenArr = flattenObjArr(objArr)
@@ -226,13 +227,13 @@ export function asyncMap(
   const results: ValidateError[] = []
   const pending = new Promise<Values>((resolve, reject) => {
     const next = (errors: ValidateError[]) => {
-      results.push.apply(results, errors)
+      results.push(...errors)
       total++
       if (total === objArrLength) {
         callback(results)
         return results.length
           ? reject(
-              new AsyncValidationError(results, convertFieldsError(results)),
+              new AsyncValidationError(results, convertFieldsError(results)!),
             )
           : resolve(source)
       }
@@ -264,7 +265,7 @@ function isErrorObj(
 function getValue(value: Values, path: string[]) {
   let v = value
   for (let i = 0; i < path.length; i++) {
-    if (v == undefined) {
+    if (v === undefined) {
       return v
     }
     v = v[path[i]]
@@ -297,7 +298,7 @@ export function complementError(rule: InternalRuleItem, source: Values) {
 export function deepMerge<T extends object>(target: T, source: Partial<T>): T {
   if (source) {
     for (const s in source) {
-      if (source.hasOwnProperty(s)) {
+      if (Object.prototype.hasOwnProperty.call(source, s)) {
         const value = source[s]
         if (typeof value === 'object' && typeof target[s] === 'object') {
           target[s] = {
@@ -306,7 +307,7 @@ export function deepMerge<T extends object>(target: T, source: Partial<T>): T {
           }
         }
         else {
-          target[s] = value
+          target[s] = value as T[typeof s]
         }
       }
     }
