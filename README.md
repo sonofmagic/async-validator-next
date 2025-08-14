@@ -1,31 +1,27 @@
-# monorepo-template
+# async-validator-next
 
-[![codecov](https://codecov.io/gh/sonofmagic/monorepo-template/branch/main/graph/badge.svg?token=mWA3D53rSl)](https://codecov.io/gh/sonofmagic/monorepo-template)
+## Projects
 
-[Documention](https://monorepo.icebreaker.top/)
+## Contributing
 
-use pnpm, turborepo and changeset to manage your monorepo
+Contributions Welcome! You can contribute in the following ways.
 
-## How to use ?
+- Create an Issue - Propose a new feature. Report a bug.
+- Pull Request - Fix a bug and typo. Refactor the code.
+- Create third-party middleware - Instruct below.
+- Share - Share your thoughts on the Blog, X, and others.
+- Make your application - Please try to use async-validator-next.
 
-click use `Use this template` button right side, and add your project.
+For more details, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
-Then run `npm run script:clean` to remove some pkgs
+## Contributors
 
-## Npm publish
+Thanks to [all contributors](https://github.com/sonofmagic/async-validator-next/graphs/contributors)!
 
-add `secrets.NPM_TOKEN` (created by npm) to your `Github` `Actions secrets and variables` and then
+## Authors
 
-if you push changes into the `main` branch, GitHub action will automatically publish the changed (with version changes like `1.0.0` -> `1.1.0`) packages.
+ice breaker <1324318532@qq.com>
 
-## Changelog
+## License
 
-use `@changesets/changelog-github` to generate changelog.
-
-remember to update the `"changelog": ["@changesets/changelog-github", { "repo": "<org>/<repo>" }]` in `.changeset/config.json`
-
-## Upgrade Template
-
-run `npx @icebreakers/monorepo@latest`
-
-More Options See [Documention](https://monorepo.icebreaker.top/)
+Distributed under the MIT License. See [LICENSE](LICENSE) for more information.

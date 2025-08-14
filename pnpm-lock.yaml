@@ -110,8 +110,6 @@ importers:
 
   packages/async-validator: {}
 
-  packages/unbuild-template: {}
-
 packages:
 
   '@ampproject/remapping@2.3.0':
