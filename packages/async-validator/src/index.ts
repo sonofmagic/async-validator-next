@@ -27,6 +27,7 @@ import {
 import validators from './validator/index'
 
 export * from './interface'
+export * from './zod'
 
 /**
  *  Encapsulates a validation schema.
@@ -344,6 +345,7 @@ class Schema {
     }
     if (
       typeof rule.validator !== 'function'
+      && typeof rule.asyncValidator !== 'function'
       && rule.type
       && !Object.prototype.hasOwnProperty.call(validators, rule.type)
     ) {

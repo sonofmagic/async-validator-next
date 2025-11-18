@@ -30,8 +30,11 @@
     "test": "vitest run",
     "test:dev": "vitest"
   },
-  "devDependencies": {},
-  "publishConfig": {
-
-  }
+  "peerDependencies": {
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "zod": "^3.25.76"
+  },
+  "publishConfig": {}
 }

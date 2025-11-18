@@ -110,6 +110,30 @@ Schema.warning = () => {}
 globalThis.ASYNC_VALIDATOR_NO_WARNING = 1
 ```
 
+### Zod Adapter
+
+- Install peer dep: `pnpm add zod`.
+- Use `zodRule(zodSchema, message?)` to wrap a Zod schema into async-validator:
+
+```ts
+import Schema, { zodRule } from 'async-validator-next'
+import { z } from 'zod'
+
+const schema = new Schema({
+  user: zodRule(
+    z.object({
+      profile: z.object({ email: z.string().email() }),
+      age: z.number().min(18),
+    }),
+  ),
+})
+
+schema.validate({ user: { profile: { email: 'bad' }, age: 12 } })
+  .catch(({ errors }) => console.log(errors.map(e => e.message)))
+```
+
+- `message` can be a string or a formatter `(issue, path) => string`. Nested paths are appended to the field (`user.profile.email`).
+
 ## Development
 
 - Build: `pnpm -C packages/async-validator build` (tsdown → `dist/` ESM bundle + `.d.mts`).

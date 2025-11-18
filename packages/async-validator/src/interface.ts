@@ -17,6 +17,7 @@ export type RuleType
     | 'email'
     | 'pattern'
     | 'any'
+    | 'zod'
 
 export interface ValidateOption {
   // whether to suppress internal warning
@@ -71,6 +72,7 @@ export interface RuleItem {
     source: Values,
     options: ValidateOption,
   ) => SyncValidateResult | void
+  zodSchema?: unknown
 }
 
 export type Rule = RuleItem | RuleItem[]
