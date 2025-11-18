@@ -134,6 +134,43 @@ schema.validate({ user: { profile: { email: 'bad' }, age: 12 } })
 
 - `message` can be a string or a formatter `(issue, path) => string`. Nested paths are appended to the field (`user.profile.email`).
 
+### Global Validation Overrides
+
+Use `setValidationConfig` to override the built-in type validators for every schema instance (handy for company-specific URL/email/number checks):
+
+```ts
+import Schema, {
+  resetValidationConfig,
+  setValidationConfig,
+} from 'async-validator-next'
+
+setValidationConfig({
+  typeValidators: {
+    url: value => typeof value === 'string' && value.startsWith('https://internal.example'),
+    number: value => typeof value === 'number' && Number.isFinite(value) && value >= 0,
+  },
+})
+
+const schema = new Schema({
+  link: { type: 'url', required: true },
+  amount: { type: 'number' },
+})
+
+await schema.validate({ link: 'https://internal.example/docs', amount: 12 })
+await schema.validate({ link: 'http://public.example/', amount: 12 }).catch(({ errors }) => {
+  console.error(errors[0].message) // "link is not a valid url"
+})
+
+resetValidationConfig()
+```
+
+In tests you can keep overrides scoped by pairing `setValidationConfig` + `resetValidationConfig` in hooks:
+
+```ts
+beforeEach(() => setValidationConfig({ typeValidators: { email: v => v.endsWith('@corp.com') } }))
+afterEach(() => resetValidationConfig())
+```
+
 ## Development
 
 - Build: `pnpm -C packages/async-validator build` (tsdown → `dist/` ESM bundle + `.d.mts`).

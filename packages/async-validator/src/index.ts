@@ -26,6 +26,11 @@ import {
 } from './util'
 import validators from './validator/index'
 
+export {
+  getValidationConfig,
+  resetValidationConfig,
+  setValidationConfig,
+} from './config'
 export * from './interface'
 export * from './zod'
 

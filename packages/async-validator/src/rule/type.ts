@@ -1,4 +1,5 @@
 import type { ExecuteRule, Value } from '../interface'
+import { getValidationConfig } from '../config'
 import { messages as defaultMessages } from '../messages'
 import { format } from '../util'
 import required from './required'
@@ -15,12 +16,12 @@ const pattern = {
   hex: /^#?([a-f0-9]{6}|[a-f0-9]{3})$/i,
 }
 
-const types = {
+const baseTypeValidators: Record<string, (value: Value) => boolean> = {
   integer(value: Value) {
-    return types.number(value) && Number.parseInt(value, 10) === value
+    return baseTypeValidators.number(value) && Number.parseInt(value, 10) === value
   },
   float(value: Value) {
-    return types.number(value) && !types.integer(value)
+    return baseTypeValidators.number(value) && !baseTypeValidators.integer(value)
   },
   array(value: Value) {
     return Array.isArray(value)
@@ -51,7 +52,7 @@ const types = {
     return typeof value === 'number'
   },
   object(value: Value) {
-    return typeof value === 'object' && !types.array(value)
+    return typeof value === 'object' && !baseTypeValidators.array(value)
   },
   method(value: Value) {
     return typeof value === 'function'
@@ -75,22 +76,11 @@ const types = {
   },
 }
 
-const CUSTOM_TYPES = [
-  'integer',
-  'float',
-  'array',
-  'regexp',
-  'object',
-  'method',
-  'email',
-  'number',
-  'date',
-  'url',
-  'hex',
-] as const
-type CustomRuleType = (typeof CUSTOM_TYPES)[number]
-
 const type: ExecuteRule = (rule, value, source, errors, options) => {
+  const types = {
+    ...baseTypeValidators,
+    ...getValidationConfig().typeValidators,
+  }
   if (rule.required && value === undefined) {
     required(rule, value, source, errors, options)
     return
@@ -98,11 +88,14 @@ const type: ExecuteRule = (rule, value, source, errors, options) => {
   const messages = options.messages || defaultMessages
   const typeMessages = messages.types || defaultMessages.types!
   const ruleType = rule.type!
-  if ((CUSTOM_TYPES as readonly string[]).includes(ruleType)) {
-    const customRuleType = ruleType as CustomRuleType
-    if (!types[customRuleType](value)) {
+  if (ruleType in types) {
+    const customRuleType = ruleType as keyof typeof types
+    const messageTemplate = (typeMessages as Record<string, any>)[customRuleType]
+      || (defaultMessages.types as Record<string, any>)[customRuleType]
+    const validator = types[customRuleType]
+    if (!validator || !validator(value)) {
       errors.push(
-        format(typeMessages[customRuleType]!, rule.fullField, rule.type),
+        format(messageTemplate || defaultMessages.types!.string!, rule.fullField, rule.type),
       )
     }
     // straight typeof check

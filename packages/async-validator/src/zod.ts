@@ -41,13 +41,14 @@ export function zodRule<T extends ZodTypeAny>(
             callback()
             return
           }
+          const baseField = rule.fullField || rule.field || 'field'
           const errors = result.error.issues.map(issue =>
-            formatIssue(issue, rule.fullField || rule.field, message),
+            formatIssue(issue, baseField, message),
           )
-          callback(errors)
+          callback(errors as unknown as Error)
         })
-        .catch((error) => {
-          callback(error as Error)
+        .catch((error: unknown) => {
+          callback(error instanceof Error ? error : new Error(String(error)))
         })
     },
   }
