@@ -1,3 +1,4 @@
+import type { ExecuteValidator } from '../interface'
 import any from './any'
 import array from './array'
 import boolean from './boolean'
@@ -14,7 +15,7 @@ import required from './required'
 import string from './string'
 import type from './type'
 
-export default {
+const validators: Record<string, ExecuteValidator> = {
   string,
   method,
   number,
@@ -33,3 +34,5 @@ export default {
   required,
   any,
 }
+
+export default validators

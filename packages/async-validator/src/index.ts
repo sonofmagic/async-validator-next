@@ -1,4 +1,5 @@
 import type {
+  ExecuteValidator,
   InternalRuleItem,
   InternalValidateMessages,
   Rule,
@@ -35,7 +36,7 @@ export * from './interface'
  */
 class Schema {
   // ========================= Static =========================
-  static register = function register(type: string, validator) {
+  static register = function register(type: string, validator: ExecuteValidator) {
     if (typeof validator !== 'function') {
       throw new TypeError(
         'Cannot register a validator by type, validator is not a function',
@@ -90,12 +91,10 @@ class Schema {
 
   validate(source_: Values, o: any = {}, oc: any = () => {}): Promise<Values> {
     let source: Values = source_
-    let options: ValidateOption = o
-    let callback: ValidateCallback = oc
-    if (typeof options === 'function') {
-      callback = options
-      options = {}
-    }
+    const optionsParam: ValidateOption
+      = typeof o === 'function' ? {} : (o as ValidateOption)
+    const callback: ValidateCallback
+      = typeof o === 'function' ? o : oc
     if (!this.rules || Object.keys(this.rules).length === 0) {
       if (callback) {
         callback(null, source)
@@ -105,7 +104,7 @@ class Schema {
 
     function complete(results: (ValidateError | ValidateError[])[]) {
       let errors: ValidateError[] = []
-      let fields: ValidateFieldsError = {}
+      let fields: ValidateFieldsError
 
       function add(e: ValidateError | ValidateError[]) {
         if (Array.isArray(e)) {
@@ -123,24 +122,25 @@ class Schema {
         callback(null, source)
       }
       else {
-        fields = convertFieldsError(errors);
-        (callback as (
-          errors: ValidateError[],
-          fields: ValidateFieldsError,
-        ) => void)(errors, fields)
+        fields = convertFieldsError(errors)!
+        callback(errors, fields)
       }
     }
 
-    if (options.messages) {
-      let messages = this.messages()
-      if (messages === defaultMessages) {
-        messages = newMessages()
+    const mergedMessages = (() => {
+      if (optionsParam.messages) {
+        const clone = this.messages() === defaultMessages
+          ? newMessages()
+          : this.messages()
+        deepMerge(clone, optionsParam.messages)
+        return clone
       }
-      deepMerge(messages, options.messages)
-      options.messages = messages
-    }
-    else {
-      options.messages = this.messages()
+      return this.messages()
+    })()
+
+    const options: ValidateOption & { messages: InternalValidateMessages } = {
+      ...optionsParam,
+      messages: mergedMessages,
     }
 
     const series: Record<string, RuleValuePackage[]> = {}
@@ -210,14 +210,18 @@ class Schema {
             Schema.warning('async-validator:', errorList)
           }
           if (errorList.length && rule.message !== undefined) {
-            errorList = [rule.message]
+            const message = typeof rule.message === 'function'
+              ? rule.message(rule.fullField || rule.field)
+              : rule.message
+            errorList = [message]
           }
 
           // Fill error info
           let filledErrors = errorList.map(complementError(rule, source))
+          const requiredMessage = options.messages.required ?? defaultMessages.required ?? ''
 
           if (options.first && filledErrors.length) {
-            errorFields[rule.field] = 1
+            errorFields[rule.field!] = 1
             return doIt(filledErrors)
           }
           if (!deep) {
@@ -236,7 +240,7 @@ class Schema {
                 filledErrors = [
                   options.error(
                     rule,
-                    format(options.messages.required, rule.field),
+                    format(requiredMessage, rule.field),
                   ),
                 ]
               }
@@ -244,9 +248,10 @@ class Schema {
             }
 
             let fieldsSchema: Record<string, Rule> = {}
-            if (rule.defaultField) {
-              Object.keys(data.value).map((key) => {
-                fieldsSchema[key] = rule.defaultField
+            const defaultField = rule.defaultField
+            if (defaultField) {
+              Object.keys(data.value).forEach((key) => {
+                fieldsSchema[key] = defaultField
               })
             }
             fieldsSchema = {
@@ -279,12 +284,12 @@ class Schema {
               if (errs && errs.length) {
                 finalErrors.push(...errs)
               }
-              doIt(finalErrors.length ? finalErrors : null)
+              doIt(finalErrors.length ? finalErrors : [])
             })
           }
         }
 
-        let res: ValidateResult
+        let res: ValidateResult | undefined
         if (rule.asyncValidator) {
           res = rule.asyncValidator(rule, data.value, cb, data.source, options)
         }
@@ -293,14 +298,14 @@ class Schema {
             res = rule.validator(rule, data.value, cb, data.source, options)
           }
           catch (error) {
-            console.error?.(error)
             // rethrow to report error
             if (!options.suppressValidatorError) {
               setTimeout(() => {
                 throw error
               }, 0)
             }
-            cb(error.message)
+            const message = error instanceof Error ? error.message : String(error)
+            cb(message)
           }
           if (res === true) {
             cb()

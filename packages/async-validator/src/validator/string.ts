@@ -4,8 +4,9 @@ import { isEmptyValue } from '../util'
 
 const string: ExecuteValidator = (rule, value, callback, source, options) => {
   const errors: string[] = []
+  const field = rule.field!
   const validate
-    = rule.required || (!rule.required && Object.prototype.hasOwnProperty.call(source, rule.field))
+    = rule.required || (!rule.required && Object.prototype.hasOwnProperty.call(source, field))
   if (validate) {
     if (isEmptyValue(value, 'string') && !rule.required) {
       return callback()

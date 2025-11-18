@@ -80,19 +80,19 @@ describe('validator', () => {
       new Schema({
         v: [
           {
-            validator(rule, value, callback) {
+            validator(_rule, _value, callback) {
               callback(new Error('e1'))
             },
           },
           {
-            validator(rule, value, callback) {
+            validator(_rule, _value, callback) {
               callback(new Error('e2'))
             },
           },
         ],
         v2: [
           {
-            validator(rule, value, callback) {
+            validator(_rule, _value, callback) {
               callback(new Error('e3'))
             },
           },
@@ -123,12 +123,12 @@ describe('validator', () => {
         new Schema({
           v: [
             {
-              validator(rule, value, callback) {
+              validator(_rule, _value, callback) {
                 callback(new Error('e1'))
               },
             },
             {
-              validator(rule, value, callback) {
+              validator(_rule, _value, callback) {
                 callback(new Error('e2'))
               },
             },
@@ -136,19 +136,19 @@ describe('validator', () => {
 
           v2: [
             {
-              validator(rule, value, callback) {
+              validator(_rule, _value, callback) {
                 callback(new Error('e3'))
               },
             },
           ],
           v3: [
             {
-              validator(rule, value, callback) {
+              validator(_rule, _value, callback) {
                 callback(new Error('e4'))
               },
             },
             {
-              validator(rule, value, callback) {
+              validator(_rule, _value, callback) {
                 callback(new Error('e5'))
               },
             },
@@ -181,12 +181,12 @@ describe('validator', () => {
         new Schema({
           v: [
             {
-              validator(rule, value, callback) {
+              validator(_rule, _value, callback) {
                 callback(new Error('e1'))
               },
             },
             {
-              validator(rule, value, callback) {
+              validator(_rule, _value, callback) {
                 callback(new Error('e2'))
               },
             },
@@ -194,19 +194,19 @@ describe('validator', () => {
 
           v2: [
             {
-              validator(rule, value, callback) {
+              validator(_rule, _value, callback) {
                 callback(new Error('e3'))
               },
             },
           ],
           v3: [
             {
-              validator(rule, value, callback) {
+              validator(_rule, _value, callback) {
                 callback(new Error('e4'))
               },
             },
             {
-              validator(rule, value, callback) {
+              validator(_rule, _value, callback) {
                 callback(new Error('e5'))
               },
             },
@@ -239,19 +239,19 @@ describe('validator', () => {
         new Schema({
           v: [
             {
-              validator(rule, value, callback) {
+              validator(_rule, _value, callback) {
                 callback(new Error('e1'))
               },
             },
             {
-              validator(rule, value, callback) {
+              validator(_rule, _value, callback) {
                 callback(new Error('e2'))
               },
             },
           ],
           v2: [
             {
-              validator(rule, value, callback) {
+              validator(_rule, _value, callback) {
                 callback(new Error('e3'))
               },
             },
@@ -330,19 +330,19 @@ describe('validator', () => {
         new Schema({
           v: [
             {
-              validator(rule, value, callback) {
+              validator(_rule, _value, callback) {
                 callback(new Error('e1'))
               },
             },
             {
-              validator(rule, value, callback) {
+              validator(_rule, _value, callback) {
                 callback(new Error('e2'))
               },
             },
           ],
           v2: [
             {
-              validator(rule, value, callback) {
+              validator(_rule, _value, callback) {
                 callback(new Error('e3'))
               },
             },
@@ -371,12 +371,12 @@ describe('validator', () => {
           new Schema({
             v: [
               {
-                validator(rule, value, callback) {
+                validator(_rule, _value, callback) {
                   callback(new Error('e1'))
                 },
               },
               {
-                validator(rule, value, callback) {
+                validator(_rule, _value, callback) {
                   callback(new Error('e2'))
                 },
               },
@@ -384,19 +384,19 @@ describe('validator', () => {
 
             v2: [
               {
-                validator(rule, value, callback) {
+                validator(_rule, _value, callback) {
                   callback(new Error('e3'))
                 },
               },
             ],
             v3: [
               {
-                validator(rule, value, callback) {
+                validator(_rule, _value, callback) {
                   callback(new Error('e4'))
                 },
               },
               {
-                validator(rule, value, callback) {
+                validator(_rule, _value, callback) {
                   callback(new Error('e5'))
                 },
               },

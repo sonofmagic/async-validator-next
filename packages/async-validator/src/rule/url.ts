@@ -1,13 +1,18 @@
 // https://github.com/kevva/url-regex/blob/master/index.js
 let urlReg: RegExp
 
+interface UrlRegexOptions {
+  includeBoundaries?: boolean
+  exact?: boolean
+}
+
 export default () => {
   if (urlReg) {
     return urlReg
   }
 
   const word = '[a-fA-F\\d:]'
-  const b = options =>
+  const b = (options?: UrlRegexOptions) =>
     options && options.includeBoundaries
       ? `(?:(?<=\\s|^)(?=${word})|(?<=${word})(?=\\s|$))`
       : ''
@@ -37,21 +42,21 @@ export default () => {
   const v4exact = new RegExp(`^${v4}$`)
   const v6exact = new RegExp(`^${v6}$`)
 
-  const ip = options =>
+  const ip = (options?: UrlRegexOptions) =>
     options && options.exact
       ? v46Exact
       : new RegExp(
-        `(?:${b(options)}${v4}${b(options)})|(?:${b(options)}${v6}${b(
-          options,
-        )})`,
-        'g',
-      )
+          `(?:${b(options)}${v4}${b(options)})|(?:${b(options)}${v6}${b(
+            options,
+          )})`,
+          'g',
+        )
 
-  ip.v4 = (options?) =>
+  ip.v4 = (options?: UrlRegexOptions) =>
     options && options.exact
       ? v4exact
       : new RegExp(`${b(options)}${v4}${b(options)}`, 'g')
-  ip.v6 = (options?) =>
+  ip.v6 = (options?: UrlRegexOptions) =>
     options && options.exact
       ? v6exact
       : new RegExp(`${b(options)}${v6}${b(options)}`, 'g')

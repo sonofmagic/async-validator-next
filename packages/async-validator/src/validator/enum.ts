@@ -12,8 +12,9 @@ const enumerable: ExecuteValidator = (
   options,
 ) => {
   const errors: string[] = []
+  const field = rule.field!
   const validate
-    = rule.required || (!rule.required && Object.prototype.hasOwnProperty.call(source, rule.field))
+    = rule.required || (!rule.required && Object.prototype.hasOwnProperty.call(source, field))
   if (validate) {
     if (isEmptyValue(value) && !rule.required) {
       return callback()

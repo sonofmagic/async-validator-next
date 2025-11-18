@@ -1,4 +1,5 @@
 import type { ExecuteRule, Value } from '../interface'
+import { messages as defaultMessages } from '../messages'
 import { format } from '../util'
 import required from './required'
 import getUrlRegex from './url'
@@ -74,37 +75,57 @@ const types = {
   },
 }
 
+const CUSTOM_TYPES = [
+  'integer',
+  'float',
+  'array',
+  'regexp',
+  'object',
+  'method',
+  'email',
+  'number',
+  'date',
+  'url',
+  'hex',
+] as const
+type CustomRuleType = (typeof CUSTOM_TYPES)[number]
+
 const type: ExecuteRule = (rule, value, source, errors, options) => {
   if (rule.required && value === undefined) {
     required(rule, value, source, errors, options)
     return
   }
-  const custom = [
-    'integer',
-    'float',
-    'array',
-    'regexp',
-    'object',
-    'method',
-    'email',
-    'number',
-    'date',
-    'url',
-    'hex',
-  ]
+  const messages = options.messages || defaultMessages
+  const typeMessages = messages.types || defaultMessages.types!
   const ruleType = rule.type!
-  if (custom.includes(ruleType)) {
-    if (!types[ruleType](value)) {
+  if ((CUSTOM_TYPES as readonly string[]).includes(ruleType)) {
+    const customRuleType = ruleType as CustomRuleType
+    if (!types[customRuleType](value)) {
       errors.push(
-        format(options.messages.types[ruleType], rule.fullField, rule.type),
+        format(typeMessages[customRuleType]!, rule.fullField, rule.type),
       )
     }
     // straight typeof check
   }
-  else if (ruleType && typeof value !== rule.type) {
-    errors.push(
-      format(options.messages.types[ruleType], rule.fullField, rule.type),
-    )
+  else if (ruleType) {
+    if (ruleType === 'string' && typeof value !== 'string') {
+      errors.push(
+        format(
+          typeMessages.string ?? defaultMessages.types!.string!,
+          rule.fullField,
+          rule.type,
+        ),
+      )
+    }
+    else if (ruleType === 'boolean' && typeof value !== 'boolean') {
+      errors.push(
+        format(
+          typeMessages.boolean ?? defaultMessages.types!.boolean!,
+          rule.fullField,
+          rule.type,
+        ),
+      )
+    }
   }
 }
 
