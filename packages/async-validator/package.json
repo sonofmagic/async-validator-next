@@ -1,22 +1,27 @@
 {
   "name": "async-validator-next",
   "type": "module",
-  "private": true,
   "license": "MIT",
   "keywords": [
     "validator",
     "validate",
     "async"
   ],
+  "sideEffects": false,
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs"
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
     }
   },
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "unbuild",
+    "build": "tsdown",
     "test": "vitest run",
     "test:dev": "vitest"
   },
