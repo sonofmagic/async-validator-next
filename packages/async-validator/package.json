@@ -3,6 +3,10 @@
   "type": "module",
   "version": "0.0.0",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sonofmagic/async-validator-next"
+  },
   "keywords": [
     "validator",
     "validate",
