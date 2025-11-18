@@ -1,6 +1,7 @@
 {
   "name": "async-validator-next",
   "type": "module",
+  "version": "0.0.0",
   "license": "MIT",
   "keywords": [
     "validator",
