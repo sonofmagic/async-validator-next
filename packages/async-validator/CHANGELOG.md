@@ -1,5 +1,11 @@
 # async-validator-next
 
+## 0.1.1
+
+### Patch Changes
+
+- [`4a69058`](https://github.com/sonofmagic/async-validator-next/commit/4a69058e761a1b384cabfe00743cd8d207f280c0) Thanks [@sonofmagic](https://github.com/sonofmagic)! - Expose CommonJS type declarations via conditional exports to match the emitted `index.d.cts`.
+
 ## 0.1.0
 
 ### Minor Changes
