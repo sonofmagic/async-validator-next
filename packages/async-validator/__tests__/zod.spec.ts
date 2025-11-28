@@ -3,16 +3,24 @@ import Schema, { zodRule } from '../src'
 
 describe('zod adapter', () => {
   it('maps Zod issues to async-validator errors', async () => {
-    const schema = new Schema({
-      user: zodRule(
-        z.object({
-          profile: z.object({
-            email: z.string().email(),
-          }),
-          age: z.number().min(18),
-        }),
-      ),
+    const userSchema = z.object({
+      profile: z.object({
+        email: z.string().email(),
+      }),
+      age: z.number().min(18),
     })
+    const schema = new Schema({
+      user: zodRule(userSchema),
+    })
+
+    const parseResult = userSchema.safeParse({
+      profile: { email: 'no-email' },
+      age: 12,
+    })
+    if (parseResult.success) {
+      throw new Error('expected invalid user to fail Zod validation')
+    }
+    const [emailIssue, ageIssue] = parseResult.error.issues
 
     await expect(
       schema.validate({
@@ -23,8 +31,8 @@ describe('zod adapter', () => {
       }),
     ).rejects.toMatchObject({
       errors: [
-        { message: 'Invalid email', field: 'user.profile.email' },
-        { message: 'Number must be greater than or equal to 18', field: 'user.age' },
+        { message: emailIssue.message, field: 'user.profile.email' },
+        { message: ageIssue.message, field: 'user.age' },
       ],
     })
   })
