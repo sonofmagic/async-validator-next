@@ -1,0 +1,27 @@
+{
+  "name": "async-validator-next-docs",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vitepress dev --host",
+    "build": "vitepress build",
+    "preview": "vitepress preview"
+  },
+  "dependencies": {
+    "async-validator-next": "workspace:*",
+    "zod": "^4.2.1"
+  },
+  "devDependencies": {
+    "vitepress": "^2.0.0-alpha.15"
+  },
+  "turbo": {
+    "pipeline": {
+      "build": {
+        "outputs": [
+          ".vitepress/dist/**"
+        ]
+      }
+    }
+  }
+}
