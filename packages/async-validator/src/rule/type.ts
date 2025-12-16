@@ -1,7 +1,14 @@
-import type { ExecuteRule, Value } from '../interface'
+import type {
+  BasicTypeValidator,
+  ExecuteRule,
+  TypeValidator,
+  TypeValidators,
+  Value,
+  Values,
+} from '../interface'
 import { getValidationConfig } from '../config'
 import { messages as defaultMessages } from '../messages'
-import { format } from '../util'
+import { format, isPromiseLike } from '../util'
 import required from './required'
 import getUrlRegex from './url'
 /* eslint max-len:0 */
@@ -16,7 +23,7 @@ const pattern = {
   hex: /^#?([a-f0-9]{6}|[a-f0-9]{3})$/i,
 }
 
-const baseTypeValidators: Record<string, (value: Value) => boolean> = {
+const baseTypeValidators: Record<string, BasicTypeValidator> = {
   integer(value: Value) {
     return baseTypeValidators.number(value) && Number.parseInt(value, 10) === value
   },
@@ -76,10 +83,26 @@ const baseTypeValidators: Record<string, (value: Value) => boolean> = {
   },
 }
 
+type UserTypeValidator = TypeValidator | BasicTypeValidator
+
+function runTypeValidator(
+  validator: UserTypeValidator,
+  rule: Parameters<ExecuteRule>[0],
+  value: Value,
+  source: Values,
+  options: Parameters<ExecuteRule>[4],
+) {
+  if (validator.length > 1) {
+    return (validator as TypeValidator)(rule, value, source, options)
+  }
+  return (validator as BasicTypeValidator)(value)
+}
+
 const type: ExecuteRule = (rule, value, source, errors, options) => {
-  const types = {
+  const types: TypeValidators = {
     ...baseTypeValidators,
     ...getValidationConfig().typeValidators,
+    ...(options.typeValidators || {}),
   }
   if (rule.required && value === undefined) {
     required(rule, value, source, errors, options)
@@ -93,10 +116,32 @@ const type: ExecuteRule = (rule, value, source, errors, options) => {
     const messageTemplate = (typeMessages as Record<string, any>)[customRuleType]
       || (defaultMessages.types as Record<string, any>)[customRuleType]
     const validator = types[customRuleType]
-    if (!validator || !validator(value)) {
-      errors.push(
-        format(messageTemplate || defaultMessages.types!.string!, rule.fullField, rule.type),
-      )
+    const addError = () => {
+      errors.push(format(messageTemplate || defaultMessages.types!.string!, rule.fullField, rule.type))
+    }
+    if (!validator) {
+      addError()
+      return
+    }
+    try {
+      const result = runTypeValidator(validator, rule, value, source, options)
+      if (isPromiseLike(result)) {
+        return result
+          .then((res) => {
+            if (res === false) {
+              addError()
+            }
+          })
+          .catch(() => {
+            addError()
+          })
+      }
+      if (result === false) {
+        addError()
+      }
+    }
+    catch {
+      addError()
     }
     // straight typeof check
   }

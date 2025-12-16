@@ -1,9 +1,7 @@
-import type { RuleType, Value } from './interface'
-
-export type TypeValidator = (value: Value) => boolean
+import type { TypeValidators } from './interface'
 
 export interface ValidationConfig {
-  typeValidators?: Partial<Record<RuleType, TypeValidator>>
+  typeValidators?: TypeValidators
 }
 
 const defaultConfig: Required<ValidationConfig> = {

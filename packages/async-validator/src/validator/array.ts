@@ -1,5 +1,6 @@
 import type { ExecuteValidator } from '../interface'
 import rules from '../rule/index'
+import { isPromiseLike } from '../util'
 
 const array: ExecuteValidator = (rule, value, callback, source, options) => {
   const errors: string[] = []
@@ -12,8 +13,17 @@ const array: ExecuteValidator = (rule, value, callback, source, options) => {
     }
     rules.required(rule, value, source, errors, options, 'array')
     if (value !== undefined && value !== null) {
-      rules.type(rule, value, source, errors, options)
-      rules.range(rule, value, source, errors, options)
+      const typeResult = rules.type(rule, value, source, errors, options)
+      const finish = () => {
+        rules.range(rule, value, source, errors, options)
+        callback(errors)
+      }
+      if (isPromiseLike(typeResult)) {
+        typeResult.then(finish)
+        return
+      }
+      finish()
+      return
     }
   }
   callback(errors)

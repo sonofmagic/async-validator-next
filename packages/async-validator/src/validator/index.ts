@@ -28,6 +28,7 @@ const validators: Record<string, ExecuteValidator> = {
   enum: enumValidator,
   pattern,
   date,
+  type,
   url: type,
   hex: type,
   email: type,

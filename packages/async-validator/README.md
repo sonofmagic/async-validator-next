@@ -171,6 +171,24 @@ beforeEach(() => setValidationConfig({ typeValidators: { email: v => v.endsWith(
 afterEach(() => resetValidationConfig())
 ```
 
+### Instance Type Validators
+
+Pass `typeValidators` to the constructor to override/extend type checks for a single validator instance. Instance validators run before the built-ins (and global config) and preserve the default error shapes/messages.
+
+```ts
+const validator = new Schema(
+  { email: [{ type: 'email', required: true }] },
+  {
+    typeValidators: {
+      email: (rule, value) => myEmailCheck(value),
+      phone: (rule, value) => phoneRegex.test(value),
+    },
+  },
+)
+```
+
+When omitted, type validation falls back to the built-in rules.
+
 ## Development
 
 - Build: `pnpm -C packages/async-validator build` (tsdown → `dist/` ESM bundle + `.d.mts`).

@@ -1,6 +1,6 @@
 import type { ExecuteValidator } from '../interface'
 import rules from '../rule'
-import { isEmptyValue } from '../util'
+import { isEmptyValue, isPromiseLike } from '../util'
 
 const type: ExecuteValidator = (rule, value, callback, source, options) => {
   const ruleType = rule.type
@@ -14,7 +14,13 @@ const type: ExecuteValidator = (rule, value, callback, source, options) => {
     }
     rules.required(rule, value, source, errors, options, ruleType)
     if (!isEmptyValue(value, ruleType)) {
-      rules.type(rule, value, source, errors, options)
+      const typeResult = rules.type(rule, value, source, errors, options)
+      if (isPromiseLike(typeResult)) {
+        typeResult.then(() => callback(errors))
+        return
+      }
+      callback(errors)
+      return
     }
   }
   callback(errors)

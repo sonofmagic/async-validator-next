@@ -1,6 +1,6 @@
 import type { ExecuteValidator } from '../interface'
 import rules from '../rule'
-import { isEmptyValue } from '../util'
+import { isEmptyValue, isPromiseLike } from '../util'
 
 const date: ExecuteValidator = (rule, value, callback, source, options) => {
   // console.log('integer rule called %j', rule);
@@ -24,10 +24,19 @@ const date: ExecuteValidator = (rule, value, callback, source, options) => {
         dateObject = new Date(value)
       }
 
-      rules.type(rule, dateObject, source, errors, options)
-      if (dateObject) {
-        rules.range(rule, dateObject.getTime(), source, errors, options)
+      const typeResult = rules.type(rule, dateObject, source, errors, options)
+      const finish = () => {
+        if (dateObject) {
+          rules.range(rule, dateObject.getTime(), source, errors, options)
+        }
+        callback(errors)
       }
+      if (isPromiseLike(typeResult)) {
+        typeResult.then(finish)
+        return
+      }
+      finish()
+      return
     }
   }
   callback(errors)

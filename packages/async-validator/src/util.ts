@@ -92,6 +92,10 @@ export function format(
   return template
 }
 
+export function isPromiseLike<T = unknown>(value: unknown): value is Promise<T> {
+  return !!value && typeof (value as Promise<T>).then === 'function'
+}
+
 function isNativeStringType(type?: string) {
   return (
     type === 'string'

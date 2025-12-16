@@ -19,6 +19,21 @@ export type RuleType
     | 'any'
     | 'zod'
 
+export type Value = any
+export type Values = Record<string, Value>
+
+export type TypeValidationResult = boolean | void | Promise<boolean | void>
+export type BasicTypeValidator = (value: Value) => TypeValidationResult
+export type TypeValidator = (
+  rule: InternalRuleItem,
+  value: Value,
+  source: Values,
+  options: ValidateOption,
+) => TypeValidationResult
+export type TypeValidators = Partial<
+  Record<RuleType | string, TypeValidator | BasicTypeValidator>
+>
+
 export interface ValidateOption {
   // whether to suppress internal warning
   suppressWarning?: boolean
@@ -38,6 +53,8 @@ export interface ValidateOption {
   keys?: string[]
 
   error?: (rule: InternalRuleItem, message: string) => ValidateError
+
+  typeValidators?: TypeValidators
 }
 
 export type SyncErrorType = Error | string
@@ -98,7 +115,7 @@ export type ExecuteRule = (
   errors: string[],
   options: ValidateOption,
   type?: string,
-) => void
+) => void | Promise<void>
 
 /**
  *  Performs validation for any type.
@@ -116,7 +133,7 @@ export type ExecuteValidator = (
   callback: (error?: string[]) => void,
   source: Values,
   options: ValidateOption,
-) => void
+) => ValidateResult
 
 // >>>>> Message
 type ValidateMessage<T extends any[] = unknown[]>
@@ -179,10 +196,6 @@ export interface ValidateMessages {
 export interface InternalValidateMessages extends ValidateMessages {
   clone: () => InternalValidateMessages
 }
-
-// >>>>> Values
-export type Value = any
-export type Values = Record<string, Value>
 
 // >>>>> Validate
 export interface ValidateError {

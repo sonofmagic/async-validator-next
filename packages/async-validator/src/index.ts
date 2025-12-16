@@ -15,6 +15,7 @@ import type {
   ValidateResult,
   Values,
 } from './interface'
+import { getValidationConfig } from './config'
 import { messages as defaultMessages, newMessages } from './messages'
 import {
   asyncMap,
@@ -60,8 +61,10 @@ class Schema {
   // ======================== Instance ========================
   rules: Record<string, RuleItem[]> | null = null
   _messages: InternalValidateMessages = defaultMessages
+  options: ValidateOption = {}
 
-  constructor(descriptor: Rules) {
+  constructor(descriptor: Rules, options: ValidateOption = {}) {
+    this.options = options
     this.define(descriptor)
   }
 
@@ -97,8 +100,19 @@ class Schema {
 
   validate(source_: Values, o: any = {}, oc: any = () => {}): Promise<Values> {
     let source: Values = source_
-    const optionsParam: ValidateOption
+    const optionFromParams: ValidateOption
       = typeof o === 'function' ? {} : (o as ValidateOption)
+    const mergedTypeValidators = {
+      ...(this.options?.typeValidators || {}),
+      ...(optionFromParams.typeValidators || {}),
+    }
+    const optionsParam: ValidateOption = {
+      ...this.options,
+      ...optionFromParams,
+      ...(Object.keys(mergedTypeValidators).length
+        ? { typeValidators: mergedTypeValidators }
+        : {}),
+    }
     const callback: ValidateCallback
       = typeof o === 'function' ? o : oc
     if (!this.rules || Object.keys(this.rules).length === 0) {
@@ -172,14 +186,14 @@ class Schema {
         }
 
         // Fill validator. Skip if nothing need to validate
-        rule.validator = this.getValidationMethod(rule)
+        rule.validator = this.getValidationMethod(rule, options)
         if (!rule.validator) {
           return
         }
 
+        rule.type = this.getType(rule, options)
         rule.field = z
         rule.fullField = rule.fullField || z
-        rule.type = this.getType(rule)
         series[z] = series[z] || []
         series[z].push({
           rule,
@@ -344,7 +358,7 @@ class Schema {
     )
   }
 
-  getType(rule: InternalRuleItem) {
+  getType(rule: InternalRuleItem, options: ValidateOption) {
     if (rule.type === undefined && rule.pattern instanceof RegExp) {
       rule.type = 'pattern'
     }
@@ -353,13 +367,14 @@ class Schema {
       && typeof rule.asyncValidator !== 'function'
       && rule.type
       && !Object.prototype.hasOwnProperty.call(validators, rule.type)
+      && !this.hasTypeValidator(rule.type, options)
     ) {
       throw new Error(format('Unknown rule type %s', rule.type))
     }
     return rule.type || 'string'
   }
 
-  getValidationMethod(rule: InternalRuleItem) {
+  getValidationMethod(rule: InternalRuleItem, options: ValidateOption) {
     if (typeof rule.validator === 'function') {
       return rule.validator
     }
@@ -371,7 +386,25 @@ class Schema {
     if (keys.length === 1 && keys[0] === 'required') {
       return validators.required
     }
-    return validators[this.getType(rule)] || undefined
+    const ruleType = this.getType(rule, options)
+    const validator = validators[ruleType]
+    if (validator) {
+      return validator
+    }
+    if (this.hasTypeValidator(ruleType, options)) {
+      return validators.type
+    }
+    return undefined
+  }
+
+  private hasTypeValidator(ruleType: string | undefined, options: ValidateOption) {
+    if (!ruleType) {
+      return false
+    }
+    return Boolean(
+      options.typeValidators?.[ruleType]
+      || getValidationConfig().typeValidators[ruleType],
+    )
   }
 }
 
