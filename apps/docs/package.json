@@ -6,14 +6,16 @@
   "scripts": {
     "dev": "vitepress dev --host",
     "build": "vitepress build",
-    "preview": "vitepress preview"
+    "preview": "vitepress preview",
+    "deploy": "wrangler pages deploy .vitepress/dist --project-name async-validator-next"
   },
   "dependencies": {
     "async-validator-next": "workspace:*",
     "zod": "^4.2.1"
   },
   "devDependencies": {
-    "vitepress": "^2.0.0-alpha.15"
+    "vitepress": "^2.0.0-alpha.15",
+    "wrangler": "^4.54.0"
   },
   "turbo": {
     "pipeline": {
