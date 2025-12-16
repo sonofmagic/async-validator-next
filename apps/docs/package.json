@@ -7,7 +7,7 @@
     "dev": "vitepress dev --host",
     "build": "vitepress build",
     "preview": "vitepress preview",
-    "deploy": "wrangler pages deploy .vitepress/dist --project-name async-validator-next"
+    "deploy": "wrangler deploy"
   },
   "dependencies": {
     "async-validator-next": "workspace:*",
