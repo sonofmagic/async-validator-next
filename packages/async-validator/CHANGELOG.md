@@ -1,5 +1,11 @@
 # async-validator-next
 
+## 0.2.0
+
+### Minor Changes
+
+- [`4917043`](https://github.com/sonofmagic/async-validator-next/commit/49170439161637b5c4af189c0ba1ef1d69913c1a) Thanks [@sonofmagic](https://github.com/sonofmagic)! - feat: add per-instance `typeValidators` option to extend or override type checks while preserving default error behavior
+
 ## 0.1.1
 
 ### Patch Changes
